@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recopilación — Paradigmas Psicopedagógicos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f8f9ff;--card:#fff;--border:#e0e7ff;--muted:#6b7280;--text:#1A1814}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:#1A1814;color:#fff;padding:18px 24px}
+header .ey{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:5px}
+header h1{font-size:18px;font-weight:400}
+header h1 em{color:rgba(255,255,255,.45);font-style:italic}
+header p{font-size:12px;color:rgba(255,255,255,.35);margin-top:5px}
+main{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+.controls{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.ctrl-box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}
+.ctrl-box select{border:1px solid #c7d2fe;border-radius:6px;padding:4px 8px;font-size:13px}
+.note-box{background:#fffbeb;border:1px solid #fde68a;border-left:4px solid #f59e0b;border-radius:8px;padding:8px 14px;font-size:12px;color:#78350f}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab-btn{padding:7px 14px;border-radius:8px;border:none;cursor:pointer;background:#e0e7ff;color:#4338ca;font-weight:400;font-size:13px;transition:all .15s}
+.tab-btn.active{background:#1A1814;color:#fff;font-weight:700}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.card-header h2{font-size:15px;font-weight:600;margin:0}
+.card-header p{font-size:12px;color:var(--muted);margin:3px 0 0}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{padding:9px 10px;background:#1A1814;color:#fff;font-weight:600;text-align:center}
+th:first-child{text-align:left}
+td{padding:8px 8px;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+tr:nth-child(even) td{background:#f8faff}
+tr.total-row td{background:#e0e7ff;font-weight:700}
+input[type=text]{border:2px solid #d1d5db;border-radius:6px;padding:4px 6px;font-size:13px;font-family:inherit;width:110px;font-weight:700}
+input[type=number]{border:2px solid #d1d5db;border-radius:6px;padding:4px 6px;font-size:14px;font-family:inherit;width:52px;text-align:center;font-weight:700}
+select.sel{border:1px solid #c7d2fe;border-radius:6px;padding:4px 6px;font-size:12px;width:100%}
+.dom-badge{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.btn-dl{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;border:none;background:#1A9060;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+.btn-dl:hover{opacity:.85}
+.btn-dl:disabled{opacity:.5;cursor:not-allowed}
+.dl-group{display:flex;gap:8px;flex-wrap:wrap}
+.chart-area{background:#fff;padding:16px;border-radius:8px}
+.chart-lbl{font-size:11px;color:#9ca3af;text-align:center;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.chart-title{font-size:13px;font-weight:600;text-align:center;margin-bottom:12px;color:#1A1814}
+.par-row{border-radius:8px;padding:10px 14px;margin-bottom:10px;border-left:4px solid}
+.par-row h3{font-size:13px;font-weight:700;margin:0 0 2px}
+.par-authors{font-size:11px;color:#9ca3af;margin-bottom:6px}
+.par-bar-bg{height:6px;background:#e5e7eb;border-radius:99px;margin-bottom:8px;overflow:hidden}
+.par-bar-fill{height:100%;border-radius:99px}
+.par-body{font-size:12px;line-height:1.75;color:#374151}
+.dom-tag{font-size:11px;font-weight:700;color:#fff;border-radius:999px;padding:2px 8px;margin-left:8px}
+.info-blue{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid #1A4E8C;border-radius:8px;padding:12px 16px;font-size:12px;color:#1e3a5f;line-height:1.8;margin-top:8px}
+footer{text-align:center;padding:20px;font-size:11px;color:#9ca3af;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<header>
+  <div class="ey">C.E.U.S. · Plantel Cuetzalan · Doctorado en Educación</div>
+  <h1>Recopilación de resultados — <em>Paradigmas Psicopedagógicos</em></h1>
+  <p>Ingresa los puntajes que cada informante obtuvo al responder el instrumento (5–25 pts por paradigma)</p>
+</header>
+<main>
+  <div class="controls">
+    <div class="ctrl-box">Informantes:
+      <select id="numInf" onchange="updateAll()">
+        <option>1</option><option>2</option><option selected>3</option>
+        <option>4</option><option>5</option><option>6</option>
+        <option>7</option><option>8</option><option>9</option><option>10</option>
+      </select>
+    </div>
+    <div class="note-box">📌 Cada informante responde el instrumento HTML por separado y te entrega sus 5 puntajes</div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('captura',this)">📋 Captura</button>
+    <button class="tab-btn" onclick="showTab('barras',this)">📊 Promedios</button>
+    <button class="tab-btn" onclick="showTab('radar',this)">🕸️ Radar</button>
+    <button class="tab-btn" onclick="showTab('tabla',this)">📄 Tabla</button>
+    <button class="tab-btn" onclick="showTab('analisis',this)">💡 Análisis</button>
+  </div>
+
+  <!-- CAPTURA -->
+  <div id="panel-captura" class="panel active">
+    <div class="card">
+      <div style="overflow-x:auto">
+        <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+      </div>
+      <p style="font-size:11px;color:#9ca3af;margin-top:8px">💡 Puntajes ≥ 18 se resaltan. Las gráficas se descargan desde las otras pestañas.</p>
+    </div>
+  </div>
+
+  <!-- BARRAS -->
+  <div id="panel-barras" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div><h2>Promedio grupal por paradigma</h2><p id="barras-sub"></p></div>
+        <div class="dl-group">
+          <button class="btn-dl" onclick="dlChart('chartBarras','barras_grupales')">⬇️ Gráfica grupal</button>
+          <button class="btn-dl" onclick="dlChart('chartBarrasInd','barras_individuales')">⬇️ Gráfica individual</button>
+        </div>
+      </div>
+      <div class="chart-area">
+        <div class="chart-lbl">C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I</div>
+        <div class="chart-title" id="lbl-barras">Promedio grupal por paradigma</div>
+        <canvas id="chartBarras" height="260"></canvas>
+      </div>
+      <div class="chart-area" style="margin-top:14px">
+        <div class="chart-lbl">C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I</div>
+        <div class="chart-title" id="lbl-barrasInd">Puntaje individual por paradigma</div>
+        <canvas id="chartBarrasInd" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- RADAR -->
+  <div id="panel-radar" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div><h2>Perfil comparativo por informante</h2><p>Superposición = convergencia entre informantes</p></div>
+        <button class="btn-dl" onclick="dlChart('chartRadar','perfil_radar')">⬇️ Descargar PNG</button>
+      </div>
+      <div class="chart-area">
+        <div class="chart-lbl">C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I</div>
+        <div class="chart-title" id="lbl-radar">Perfil paradigmático comparativo</div>
+        <canvas id="chartRadar" height="360"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <div id="panel-tabla" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div><h2>Tabla resumen — Sección 4</h2><p>Solo datos. El análisis teórico va en la Sección 5.</p></div>
+        <button class="btn-dl" onclick="dlTabla()">⬇️ Descargar PNG</button>
+      </div>
+      <div id="tabla-wrap" style="overflow-x:auto">
+        <table id="tabla-res"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANÁLISIS -->
+  <div id="panel-analisis" class="panel">
+    <div class="card">
+      <div class="card-header">
+        <div><h2>💡 Orientaciones para la Sección 5</h2><p>Análisis teórico basado en los datos capturados</p></div>
+        <button class="btn-dl" onclick="dlAnalisis()">⬇️ Descargar PNG</button>
+      </div>
+      <div id="analisis-rows"></div>
+      <div class="info-blue">
+        <strong>Para la Sección 5:</strong> Vincula el paradigma dominante con autores y conceptos del curso. Si el perfil es híbrido (varios paradigmas 12–17 pts), reflexiona: ¿es una fortaleza adaptativa o una incoherencia teórica? Contrasta la práctica declarada con los instrumentos de evaluación que realmente utilizan los docentes informantes.
+      </div>
+    </div>
+  </div>
+</main>
+<footer>Doctorado en Educación · C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I</footer>
+
+<script>
+const PARS={
+  CON:{name:"Conductista",short:"CON",authors:"Skinner · Watson",color:"#1A4E8C"},
+  COG:{name:"Cognitivo-Constructivista",short:"COG",authors:"Piaget · Ausubel",color:"#C87C00"},
+  HUM:{name:"Humanista",short:"HUM",authors:"Maslow · Rogers",color:"#1A9060"},
+  SOC:{name:"Sociohistórico Cultural",short:"SOC",authors:"Vygotsky",color:"#6A4ACC"},
+  DIG:{name:"Constructivismo Digital",short:"DIG",authors:"Papert · Siemens",color:"#1A9090"}
+};
+const ORDER=["CON","COG","HUM","SOC","DIG"];
+const IC=["#6366f1","#ef4444","#22c55e","#f59e0b","#14b8a6","#ec4899","#8b5cf6","#f97316","#06b6d4","#84cc16"];
+const NIVELES=["—","Preescolar","Primaria","Secundaria","Bachillerato","Superior","Otro"];
+const EXPS=["—","< 3 años","3–10 años","11–20 años","> 20 años"];
+let charts={};
+let state=Array(10).fill(null).map((_,i)=>({
+  name:`Docente ${String.fromCharCode(65+i)}`,nivel:"",exp:"",
+  scores:{CON:13,COG:13,HUM:13,SOC:13,DIG:13}
+}));
+
+const getN=()=>parseInt(document.getElementById('numInf').value);
+const dom=s=>ORDER.reduce((a,b)=>s[a]>=s[b]?a:b);
+function gAvg(){
+  const n=getN(),avg={};
+  ORDER.forEach(p=>{avg[p]=Math.round(10*state.slice(0,n).reduce((a,inf)=>a+inf.scores[p],0)/n)/10;});
+  return avg;
+}
+
+/* ── TABLA CAPTURA ── */
+function buildCapture(){
+  const n=getN();
+  document.getElementById('thead').innerHTML=`<tr>
+    <th style="text-align:left;min-width:120px">Seudónimo</th>
+    <th style="min-width:110px">Nivel</th><th style="min-width:100px">Experiencia</th>
+    ${ORDER.map(p=>`<th style="color:#aaa">${PARS[p].short}<br><small style="font-weight:400;opacity:.6">5–25</small></th>`).join('')}
+    <th>Dominante</th></tr>`;
+  const body=document.getElementById('tbody');
+  body.innerHTML='';
+  for(let i=0;i<n;i++){
+    const inf=state[i],d=dom(inf.scores),tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="text-align:left"><input type="text" value="${inf.name}" style="border-color:${IC[i]};color:${IC[i]}" oninput="state[${i}].name=this.value;softUpdate()"></td>
+      <td><select class="sel" onchange="state[${i}].nivel=this.value;softUpdate()">${NIVELES.map(o=>`<option${inf.nivel===o?' selected':''}>${o}</option>`).join('')}</select></td>
+      <td><select class="sel" onchange="state[${i}].exp=this.value;softUpdate()">${EXPS.map(o=>`<option${inf.exp===o?' selected':''}>${o}</option>`).join('')}</select></td>
+      ${ORDER.map(p=>`<td><input type="number" min="5" max="25" value="${inf.scores[p]}"
+        style="border-color:${inf.scores[p]>=18?PARS[p].color:'#d1d5db'};color:${inf.scores[p]>=18?PARS[p].color:'#374151'}"
+        oninput="state[${i}].scores['${p}']=Math.max(5,Math.min(25,+this.value||5));updateAll()"></td>`).join('')}
+      <td><span class="dom-badge" style="background:${PARS[d].color}22;color:${PARS[d].color}">${PARS[d].name}</span></td>`;
+    body.appendChild(tr);
+  }
+  const avg=gAvg(),gd=dom(avg),tr2=document.createElement('tr');
+  tr2.className='total-row';
+  tr2.innerHTML=`<td colspan="3" style="text-align:left;padding-left:10px">Promedio grupal</td>
+    ${ORDER.map(p=>`<td style="color:${gd===p?PARS[p].color:'#555'}">${avg[p]}</td>`).join('')}
+    <td style="color:${PARS[gd].color};font-size:11px">${PARS[gd].name}</td>`;
+  body.appendChild(tr2);
+}
+
+/* ── TABLA RESUMEN ── */
+function buildTabla(){
+  const n=getN(),avg=gAvg(),gd=dom(avg);
+  document.getElementById('tabla-res').innerHTML=`
+    <thead><tr>
+      <th style="text-align:left">Informante</th><th>Nivel</th><th>Exp.</th>
+      ${ORDER.map(p=>`<th style="color:${PARS[p].color.replace('1A','99').replace('4A','AA').replace('C8','FF')}">${PARS[p].short}</th>`).join('')}
+      <th>Paradigma dominante</th></tr></thead>
+    <tbody>
+      ${state.slice(0,n).map((inf,i)=>{const d=dom(inf.scores);return`<tr>
+        <td style="text-align:left;font-weight:700;color:${IC[i]}">${inf.name}</td>
+        <td>${inf.nivel||'—'}</td><td>${inf.exp||'—'}</td>
+        ${ORDER.map(p=>`<td style="font-weight:${d===p?700:400};color:${d===p?PARS[p].color:'#374151'}">${inf.scores[p]}</td>`).join('')}
+        <td style="font-weight:700;font-size:11px;color:${PARS[d].color}">${PARS[d].name}</td></tr>`;}).join('')}
+      <tr class="total-row"><td colspan="3" style="text-align:left;padding-left:10px">Promedio grupal</td>
+        ${ORDER.map(p=>`<td style="color:${PARS[p].color}">${avg[p]}</td>`).join('')}
+        <td style="font-size:11px;color:${PARS[gd].color}">${PARS[gd].name}</td></tr>
+    </tbody>`;
+}
+
+/* ── ANÁLISIS ── */
+function buildAnalisis(){
+  const n=getN(),avg=gAvg(),gd=dom(avg);
+  document.getElementById('analisis-rows').innerHTML=ORDER.map(p=>{
+    const a=avg[p],pct=Math.round((a/25)*100),isDom=gd===p;
+    const body=a>=18?`<strong>📌 Presencia alta (${a}/25).</strong> Vincula con los principios de ${PARS[p].name} según ${PARS[p].authors}. Analiza si la evaluación del docente es coherente con esta práctica declarada.`
+      :a>=12?`<strong>🔸 Presencia moderada (${a}/25).</strong> El paradigma aparece de forma parcial. Reflexiona si la hibridación es intencional o evidencia contradicciones entre discurso y práctica.`
+      :`<strong>⬜ Presencia baja (${a}/25).</strong> Poco preponderante en el grupo. Puede ser un hallazgo significativo si el contexto institucional lo sugería como esperado.`;
+    return`<div class="par-row" style="border-left-color:${PARS[p].color};background:${isDom?'#f8faff':'#fafafa'}">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><h3 style="color:${PARS[p].color}">${PARS[p].name}${isDom?`<span class="dom-tag" style="background:${PARS[p].color}">Dominante</span>`:''}</h3>
+          <div class="par-authors">${PARS[p].authors}</div></div>
+        <div style="font-size:20px;font-weight:700;color:${PARS[p].color}">${a}<span style="font-size:11px;color:#9ca3af"> / 25</span></div>
+      </div>
+      <div class="par-bar-bg"><div class="par-bar-fill" style="width:${pct}%;background:${PARS[p].color}"></div></div>
+      <div class="par-body">${body}</div></div>`;
+  }).join('');
+}
+
+/* ── CHARTS ── */
+function buildCharts(){
+  const n=getN(),avg=gAvg();
+  ['chartBarras','chartBarrasInd','chartRadar'].forEach(id=>{if(charts[id]){charts[id].destroy();delete charts[id];}});
+
+  // Barras grupales
+  charts['chartBarras']=new Chart(document.getElementById('chartBarras'),{
+    type:'bar',
+    data:{labels:ORDER.map(p=>PARS[p].short),
+      datasets:[{label:'Promedio',data:ORDER.map(p=>avg[p]),
+        backgroundColor:ORDER.map(p=>PARS[p].color),borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} pts · ${PARS[ORDER[ctx.dataIndex]].name}`}}},
+      scales:{y:{min:0,max:25,ticks:{stepSize:5}},x:{grid:{display:false}}}}
+  });
+
+  // Barras individuales
+  charts['chartBarrasInd']=new Chart(document.getElementById('chartBarrasInd'),{
+    type:'bar',
+    data:{labels:ORDER.map(p=>PARS[p].short),
+      datasets:state.slice(0,n).map((inf,i)=>({
+        label:inf.name||`D${i+1}`,data:ORDER.map(p=>inf.scores[p]),
+        backgroundColor:IC[i]+'cc',borderRadius:4}))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom'}},
+      scales:{y:{min:0,max:25,ticks:{stepSize:5}},x:{grid:{display:false}}}}
+  });
+
+  // Radar
+  charts['chartRadar']=new Chart(document.getElementById('chartRadar'),{
+    type:'radar',
+    data:{labels:ORDER.map(p=>PARS[p].short),
+      datasets:state.slice(0,n).map((inf,i)=>({
+        label:inf.name||`D${i+1}`,data:ORDER.map(p=>inf.scores[p]),
+        borderColor:IC[i],backgroundColor:IC[i]+'22',borderWidth:2,pointRadius:4}))},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom'}},
+      scales:{r:{min:0,max:25,ticks:{stepSize:5},pointLabels:{font:{size:12}}}}}
+  });
+
+  document.getElementById('barras-sub').textContent=`${n} informante(s) · Máx. 25 pts`;
+  document.getElementById('lbl-barras').textContent=`Promedio grupal por paradigma (n=${n})`;
+  document.getElementById('lbl-barrasInd').textContent=`Puntaje individual por paradigma (n=${n})`;
+  document.getElementById('lbl-radar').textContent=`Perfil paradigmático comparativo (n=${n})`;
+}
+
+/* ── DESCARGAS ── */
+// Descarga directa desde canvas de Chart.js (más confiable)
+function dlChart(canvasId, filename){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas){alert('Primero visualiza la gráfica.');return;}
+
+  // Crear canvas temporal con fondo blanco + título
+  const src=canvas;
+  const tmp=document.createElement('canvas');
+  const pad=50;
+  tmp.width=src.width+pad*2;
+  tmp.height=src.height+pad*2;
+  const ctx=tmp.getContext('2d');
+
+  // Fondo blanco
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,tmp.width,tmp.height);
+
+  // Encabezado
+  ctx.fillStyle='#9ca3af';
+  ctx.font='11px system-ui';
+  ctx.textAlign='center';
+  ctx.fillText('C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I',tmp.width/2,22);
+
+  // Copiar gráfica
+  ctx.drawImage(src,pad,pad);
+
+  // Descargar
+  const a=document.createElement('a');
+  a.download=filename+'.png';
+  a.href=tmp.toDataURL('image/png',1.0);
+  a.click();
+}
+
+// Tabla → canvas manual
+function dlTabla(){
+  const n=getN(),avg=gAvg(),gd=dom(avg);
+  const cols=['Informante','Nivel','Exp.',...ORDER.map(p=>PARS[p].short),'Dominante'];
+  const rows=state.slice(0,n).map((inf,i)=>{
+    const d=dom(inf.scores);
+    return {cells:[inf.name,inf.nivel||'—',inf.exp||'—',...ORDER.map(p=>String(inf.scores[p])),PARS[d].name],
+      colors:[IC[i],'#6b7280','#6b7280',...ORDER.map(p=>d===p?PARS[p].color:'#374151'),PARS[d].color],
+      bold:[true,false,false,...ORDER.map(p=>d===p),true]};
+  });
+  rows.push({cells:['Promedio grupal','','—',...ORDER.map(p=>String(avg[p])),PARS[gd].name],
+    colors:['#374151','','#374151',...ORDER.map(p=>PARS[p].color),PARS[gd].color],bold:Array(cols.length).fill(true),isTot:true});
+
+  const cw=[130,95,85,...ORDER.map(()=>52),130];
+  const rh=34,hh=42,pad=16,topPad=60;
+  const W=cw.reduce((a,b)=>a+b,0)+pad*2;
+  const H=topPad+hh+(rows.length)*rh+pad;
+
+  const c=document.createElement('canvas');
+  c.width=W*2;c.height=H*2;
+  const ctx=c.getContext('2d');
+  ctx.scale(2,2);
+
+  // Fondo
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,H);
+
+  // Encabezado institución
+  ctx.fillStyle='#9ca3af';ctx.font='10px system-ui';ctx.textAlign='center';
+  ctx.fillText('C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I',W/2,18);
+  ctx.fillStyle='#1A1814';ctx.font='bold 13px system-ui';
+  ctx.fillText('Tabla de resultados por informante',W/2,36);
+
+  // Header tabla
+  let x=pad;
+  ctx.fillStyle='#1A1814';
+  cols.forEach((col,ci)=>{
+    ctx.fillRect(x,topPad,cw[ci],hh);
+    ctx.fillStyle='#ffffff';ctx.font='bold 11px system-ui';ctx.textAlign='center';
+    ctx.fillText(col,x+cw[ci]/2,topPad+hh/2+4);
+    ctx.fillStyle='#1A1814';
+    x+=cw[ci];
+  });
+
+  // Filas
+  rows.forEach((row,ri)=>{
+    let rx=pad;
+    const y=topPad+hh+ri*rh;
+    ctx.fillStyle=row.isTot?'#e0e7ff':ri%2===0?'#f8faff':'#ffffff';
+    ctx.fillRect(pad,y,W-pad*2,rh);
+    row.cells.forEach((cell,ci)=>{
+      ctx.fillStyle=row.colors[ci]||'#374151';
+      ctx.font=(row.bold[ci]?'bold ':'')+'11px system-ui';
+      ctx.textAlign='center';
+      ctx.fillText(cell,rx+cw[ci]/2,y+rh/2+4);
+      rx+=cw[ci];
+    });
+    // línea separadora
+    ctx.strokeStyle='#e0e7ff';ctx.lineWidth=.5;
+    ctx.beginPath();ctx.moveTo(pad,y+rh);ctx.lineTo(W-pad,y+rh);ctx.stroke();
+  });
+
+  const a=document.createElement('a');
+  a.download='paradigmas_tabla.png';
+  a.href=c.toDataURL('image/png',1.0);a.click();
+}
+
+// Análisis → canvas manual
+function dlAnalisis(){
+  const avg=gAvg(),gd=dom(avg),n=getN();
+  const lineH=20,padX=24,padY=20,blockGap=12;
+  // Calcular altura total primero
+  let totalH=80; // header
+  ORDER.forEach(p=>{totalH+=90+blockGap;});
+  totalH+=80+padY; // nota final
+
+  const W=700;
+  const c=document.createElement('canvas');
+  c.width=W*2;c.height=totalH*2;
+  const ctx=c.getContext('2d');
+  ctx.scale(2,2);
+  ctx.fillStyle='#ffffff';ctx.fillRect(0,0,W,totalH);
+
+  // Institución
+  ctx.fillStyle='#9ca3af';ctx.font='10px system-ui';ctx.textAlign='center';
+  ctx.fillText('C.E.U.S. Plantel Cuetzalan · Paradigmas Psicopedagógicos I',W/2,20);
+  ctx.fillStyle='#1A1814';ctx.font='bold 13px system-ui';
+  ctx.fillText(`Análisis de resultados por paradigma (n=${n})`,W/2,40);
+
+  let y=60;
+  ORDER.forEach(p=>{
+    const a=avg[p],pct=Math.round((a/25)*100),isDom=gd===p;
+    const bh=86;
+    // Fondo bloque
+    ctx.fillStyle=isDom?'#f0f4ff':'#fafafa';
+    roundRect(ctx,padX,y,W-padX*2,bh,6);
+    // Borde izquierdo
+    ctx.fillStyle=PARS[p].color;
+    ctx.fillRect(padX,y,4,bh);
+    // Nombre
+    ctx.fillStyle=PARS[p].color;ctx.font='bold 12px system-ui';ctx.textAlign='left';
+    ctx.fillText(PARS[p].name,padX+10,y+18);
+    if(isDom){
+      ctx.fillStyle=PARS[p].color;
+      roundRect(ctx,padX+10+ctx.measureText(PARS[p].name).width+8,y+7,68,16,8,true);
+      ctx.fillStyle='#fff';ctx.font='bold 10px system-ui';
+      ctx.fillText('Dominante',padX+10+ctx.measureText(PARS[p].name).width+42,y+18);
+    }
+    // Autores
+    ctx.fillStyle='#9ca3af';ctx.font='10px system-ui';
+    ctx.fillText(PARS[p].authors,padX+10,y+32);
+    // Puntaje
+    ctx.fillStyle=PARS[p].color;ctx.font='bold 18px system-ui';ctx.textAlign='right';
+    ctx.fillText(`${a}/25`,W-padX-8,y+22);
+    // Barra
+    ctx.fillStyle='#e5e7eb';
+    roundRect(ctx,padX+10,y+38,W-padX*2-20,6,3);
+    ctx.fillStyle=PARS[p].color;
+    roundRect(ctx,padX+10,y+38,(W-padX*2-20)*pct/100,6,3,true);
+    // Texto
+    const body=a>=18?`Presencia alta. Vincula con los principios de ${PARS[p].name} (${PARS[p].authors}).`
+      :a>=12?`Presencia moderada. Reflexiona si la hibridación es intencional o evidencia contradicciones.`
+      :`Presencia baja. Puede ser un hallazgo significativo si el contexto institucional lo sugería.`;
+    ctx.fillStyle='#374151';ctx.font='11px system-ui';ctx.textAlign='left';
+    ctx.fillText(body,padX+10,y+62);
+    y+=bh+blockGap;
+  });
+
+  // Nota final
+  ctx.fillStyle='#eff6ff';
+  roundRect(ctx,padX,y,W-padX*2,70,6);
+  ctx.strokeStyle='#1A4E8C';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(padX,y);ctx.lineTo(padX,y+70);ctx.stroke();
+  ctx.fillStyle='#1e3a5f';ctx.font='bold 11px system-ui';ctx.textAlign='left';
+  ctx.fillText('Para la Sección 5:',padX+10,y+18);
+  ctx.font='10px system-ui';
+  wrapText(ctx,'Vincula el paradigma dominante con autores y conceptos del curso. Si el perfil es híbrido, reflexiona si es una fortaleza adaptativa o una incoherencia teórica.',padX+10,y+34,W-padX*2-20,14);
+
+  const a2=document.createElement('a');
+  a2.download='paradigmas_analisis.png';
+  a2.href=c.toDataURL('image/png',1.0);a2.click();
+}
+
+function roundRect(ctx,x,y,w,h,r,fill=true){
+  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();if(fill)ctx.fill();else ctx.stroke();
+}
+function wrapText(ctx,text,x,y,maxW,lh){
+  const words=text.split(' ');let line='';
+  words.forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){ctx.fillText(line,x,y);line=w;y+=lh;}else line=t;});
+  if(line)ctx.fillText(line,x,y);
+}
+
+/* ── TABS ── */
+function showTab(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  btn.classList.add('active');
+  if(id!=='captura'){buildCharts();}
+}
+
+/* ── UPDATE ── */
+function softUpdate(){buildCapture();buildTabla();buildAnalisis();}
+function updateAll(){buildCapture();buildTabla();buildAnalisis();}
+
+buildCapture();buildTabla();buildAnalisis();
+</script>
+</body>
+</html>
